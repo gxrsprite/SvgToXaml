@@ -16,6 +16,8 @@ namespace SvgToXaml
             svgstr = regex.Replace(svgstr, "");
             regex = new Regex("<defs.*?>.*</defs>", RegexOptions.Singleline);
             svgstr = regex.Replace(svgstr, "");
+            regex = new Regex("<title>.*</title>", RegexOptions.Singleline);
+            svgstr = regex.Replace(svgstr, "");
             regex = new Regex("<clipPath.*?>", RegexOptions.Singleline);
             svgstr = regex.Replace(svgstr, "");
             svgstr = svgstr.Replace("</clipPath>", "");
@@ -119,8 +121,8 @@ namespace SvgToXaml
         static void RemoveButKeepChildren(XElement path)
         {
             var parent = path.Parent;
+            path.AddAfterSelf(path.Elements());
             path.Remove();
-            parent.Add(path.Elements());
         }
 
         private static void HandleStyle(XElement path)
