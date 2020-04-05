@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2016
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29926.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SvgToXaml", "SvgToXaml\SvgToXaml.csproj", "{AF1444DC-2821-4171-AA01-488170E6824E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WpfApp1", "WpfApp1\WpfApp1.csproj", "{EBD5CFBC-7510-4454-96AA-4A197E354DF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{AF1444DC-2821-4171-AA01-488170E6824E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF1444DC-2821-4171-AA01-488170E6824E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF1444DC-2821-4171-AA01-488170E6824E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EBD5CFBC-7510-4454-96AA-4A197E354DF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EBD5CFBC-7510-4454-96AA-4A197E354DF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EBD5CFBC-7510-4454-96AA-4A197E354DF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EBD5CFBC-7510-4454-96AA-4A197E354DF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

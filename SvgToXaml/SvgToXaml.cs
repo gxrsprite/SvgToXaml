@@ -32,6 +32,8 @@ namespace SvgToXaml
             svgstr = svgstr.Replace("points", "Points");
             svgstr = svgstr.Replace("width", "Width");
             svgstr = svgstr.Replace("height", "Height");
+            svgstr = svgstr.Replace("text", "Label");
+            svgstr = svgstr.Replace("circle", "Ellipse");
             XDocument svgxml = XDocument.Parse(svgstr);
 
 
@@ -114,6 +116,64 @@ namespace SvgToXaml
 
             }
 
+            var circles = svgxml.Root.Elements("Ellipse").ToList();
+            foreach (var circle in circles)
+            {
+
+                var xAttr = circle.Attribute("cx");
+                if (xAttr != null)
+                {
+                    circle.SetAttributeValue("Canvas.Left", xAttr.Value);
+                    xAttr.Remove();
+                }
+                var yAttr = circle.Attribute("cy");
+                if (yAttr != null)
+                {
+                    circle.SetAttributeValue("Canvas.Top", yAttr.Value);
+                    yAttr.Remove();
+                }
+                yAttr = circle.Attribute("r");
+                if (yAttr != null)
+                {
+                    var r = float.Parse(yAttr.Value) * 2;
+                    circle.SetAttributeValue("Width", r);
+                    circle.SetAttributeValue("Height", r);
+                    yAttr.Remove();
+                }
+
+                var dAttr = circle.Attribute("id");
+                dAttr?.Remove();
+                dAttr = circle.Attribute("data-name");
+                dAttr?.Remove();
+                //style
+                HandleStyle(circle);
+
+            }
+
+            var texts = svgxml.Root.Elements("Label").ToList();
+            foreach (var text in texts)
+            {
+                var xAttr = text.Attribute("x");
+                if (xAttr != null)
+                {
+                    text.SetAttributeValue("Canvas.Left", xAttr.Value);
+                    xAttr.Remove();
+                }
+                var yAttr = text.Attribute("y");
+                if (yAttr != null)
+                {
+                    text.SetAttributeValue("Canvas.Top", yAttr.Value);
+                    yAttr.Remove();
+                }
+                HandleStyle(text);
+                var dAttr = text.Attribute("Fill");
+                if (dAttr != null)
+                {
+                    text.SetAttributeValue("Foreground", dAttr.Value);
+                    dAttr.Remove();
+                }
+            }
+
             var xaml = $"{string.Format(Resources.Start, name)}{svgxml.ToString()}{Resources.End}";
             return xaml.ToString();
         }
@@ -128,39 +188,59 @@ namespace SvgToXaml
         private static void HandleStyle(XElement path)
         {
             var styleAttr = path.Attribute("style");
-            if (styleAttr == null)
+            if (styleAttr != null)
             {
-                return;
-            }
-            var style = styleAttr.Value;
-            styleAttr.Remove();
-            var styles = style.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var s in styles)
-            {
-                var temp = s.Split(':');
-                if (temp.Length != 2)
+                var style = styleAttr.Value;
+                styleAttr.Remove();
+                var styles = style.Split(new char[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (var s in styles)
                 {
-                    return;
-                }
-                var name = temp[0];
-                var value = temp[1];
+                    var temp = s.Split(':');
+                    if (temp.Length != 2)
+                    {
+                        return;
+                    }
+                    var name = temp[0];
+                    var value = temp[1];
 
-                if (name == "fill" && value != "none")
-                {
-                    path.SetAttributeValue("Fill", value);
+                    if (name == "fill" && value != "none")
+                    {
+                        path.SetAttributeValue("Fill", value);
+                    }
+                    else if (name == "stroke" && value != "none")
+                    {
+                        path.SetAttributeValue("Stroke", value);
+                    }
+                    else if (name == "stroke-width")
+                    {
+                        path.SetAttributeValue("StrokeThickness", value.Replace("px", ""));
+                    }
+                    else if (name == "opacity")
+                    {
+                        path.SetAttributeValue("Opacity", value);
+                    }
+                    else if (name == "font-size")
+                    {
+                        path.SetAttributeValue("FontSize", value.Replace("px", ""));
+                    }
                 }
-                else if (name == "stroke" && value != "none")
-                {
-                    path.SetAttributeValue("Stroke", value);
-                }
-                else if (name == "stroke-width")
-                {
-                    path.SetAttributeValue("StrokeThickness", value.Replace("px", ""));
-                }
-                else if (name == "opacity")
-                {
-                    path.SetAttributeValue("Opacity", value);
-                }
+            }
+
+
+            var transformAttr = path.Attribute("transform");
+            if (transformAttr != null)
+            {
+                var style = transformAttr.Value;
+                transformAttr.Remove();
+                style = style.Replace("translate(", "");
+                style = style.Replace(")", "");
+                var translates = style.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var x = translates[0];
+                var y = translates[1];
+
+                path.SetAttributeValue("Canvas.Left", x);
+                path.SetAttributeValue("Canvas.Top", y);
+
             }
         }
     }
