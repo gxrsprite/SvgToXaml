@@ -3,6 +3,9 @@
 path → Path  
 rect → Rectangle  
 polygon → Polygon  
+text → Label
+circle → Ellipse
+ellipse → Ellipse
 处理属性和部分样式  
 
 可能可以支持的svg来源：  

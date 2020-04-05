@@ -34,6 +34,7 @@ namespace SvgToXaml
             svgstr = svgstr.Replace("height", "Height");
             svgstr = svgstr.Replace("text", "Label");
             svgstr = svgstr.Replace("circle", "Ellipse");
+            svgstr = svgstr.Replace("ellipse", "Ellipse");
             XDocument svgxml = XDocument.Parse(svgstr);
 
 
@@ -141,6 +142,22 @@ namespace SvgToXaml
                     yAttr.Remove();
                 }
 
+                var aAttr = circle.Attribute("rx");
+                if (aAttr != null)
+                {
+                    var r = float.Parse(aAttr.Value) * 2;
+                    circle.SetAttributeValue("Width", r);
+                    aAttr.Remove();
+                }
+
+                aAttr = circle.Attribute("ry");
+                if (aAttr != null)
+                {
+                    var r = float.Parse(aAttr.Value) * 2;
+                    circle.SetAttributeValue("Height", r);
+                    aAttr.Remove();
+                }
+
                 var dAttr = circle.Attribute("id");
                 dAttr?.Remove();
                 dAttr = circle.Attribute("data-name");
@@ -234,13 +251,15 @@ namespace SvgToXaml
                 transformAttr.Remove();
                 style = style.Replace("translate(", "");
                 style = style.Replace(")", "");
-                var translates = style.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                var x = translates[0];
-                var y = translates[1];
+                if (style != "0")
+                {
+                    var translates = style.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    var x = translates[0];
+                    var y = translates[1];
 
-                path.SetAttributeValue("Canvas.Left", x);
-                path.SetAttributeValue("Canvas.Top", y);
-
+                    path.SetAttributeValue("Canvas.Left", x);
+                    path.SetAttributeValue("Canvas.Top", y);
+                }
             }
         }
     }
