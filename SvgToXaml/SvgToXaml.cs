@@ -8,14 +8,28 @@ namespace SvgToXaml
 {
     class SvgToXaml
     {
+        public static XElement defs;
         public static string Convert(string svg, string name)
         {
+
+
+
             Regex regex = new Regex("p-id=\".*?\"");
             var svgstr = regex.Replace(svg, "");
             regex = new Regex("<\\?xml.+?dtd\">", RegexOptions.Singleline);
             svgstr = regex.Replace(svgstr, "");
             regex = new Regex("<defs.*?>.*</defs>", RegexOptions.Singleline);
+            var defsxml1 = regex.Match(svg);
+            if (defsxml1.Success)
+            {
+                defs = XElement.Parse(defsxml1.Value);
+            }
+            else
+            {
+                defs = null;
+            }
             svgstr = regex.Replace(svgstr, "");
+
             regex = new Regex("<title>.*</title>", RegexOptions.Singleline);
             svgstr = regex.Replace(svgstr, "");
             regex = new Regex("<clipPath.*?>", RegexOptions.Singleline);
@@ -195,6 +209,40 @@ namespace SvgToXaml
             return xaml.ToString();
         }
 
+        private static XElement GetFillDefs(string name, string value)
+        {
+            foreach (var item in defs.Elements())
+            {
+                if (item.Attribute("id")?.Value == value)
+                {
+                    if (item.Name == "linearGradient")
+                    {
+                        var startPoint = $"{item.Attribute("x1").Value},{item.Attribute("y1").Value}";
+                        var endPoint = $"{item.Attribute("x2").Value},{item.Attribute("y2").Value}";
+
+                        string rtnxml = $@"<{name}.Fill>
+                        <LinearGradientBrush StartPoint={startPoint.Maohao()} EndPoint={endPoint.Maohao() } MappingMode={"Absolute".Maohao()} SpreadMethod={"Pad".Maohao()}>
+                         
+                        </LinearGradientBrush> </{name}.Fill>";
+                        XElement rtnxmle = XElement.Parse(rtnxml);
+                        var brush = rtnxmle.Element("LinearGradientBrush");
+                        foreach (var stop in item.Elements("stop"))
+                        {
+                            var str = stop.ToString().Replace("stop-color", "Color").Replace("stop", "GradientStop");
+                            var stopx = XElement.Parse(str);
+                            if (stopx.Attribute("Color") == null)
+                            {
+                                stopx.SetAttributeValue("Color", "Black");
+                            }
+                            brush.Add(stopx);
+                        }
+                        return rtnxmle;
+                    }
+                }
+            }
+            return null;
+        }
+
         static void RemoveButKeepChildren(XElement path)
         {
             var parent = path.Parent;
@@ -222,7 +270,19 @@ namespace SvgToXaml
 
                     if (name == "fill" && value != "none")
                     {
-                        path.SetAttributeValue("Fill", value);
+                        if (styleAttr.Value.Contains("url"))
+                        {
+                            var regex = new Regex(@"url\(#(.+)\)", RegexOptions.Singleline);
+                            var match = regex.Match(styleAttr.Value);
+                            var group = match.Groups[1];
+
+                            XElement fillxml = GetFillDefs(path.Name.ToString(), group.Value);
+                            path.Add(fillxml);
+                        }
+                        else
+                        {
+                            path.SetAttributeValue("Fill", value);
+                        }
                     }
                     else if (name == "stroke" && value != "none")
                     {
