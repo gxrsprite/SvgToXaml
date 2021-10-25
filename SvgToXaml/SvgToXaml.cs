@@ -238,6 +238,32 @@ namespace SvgToXaml
                         }
                         return rtnxmle;
                     }
+                    else
+                    {
+                        if (item.Name == "radialGradient")
+                        {
+                            var center = $"{item.Attribute("cx").Value},{item.Attribute("cy").Value}";
+                            var radiusX = $"{item.Attribute("r").Value}";
+
+                            string rtnxml = $@"<{name}.Fill>
+                        <RadialGradientBrush  Center={center.Maohao()} GradientOrigin={center.Maohao()} RadiusX={radiusX.Maohao() } RadiusY={radiusX.Maohao() } MappingMode={"Absolute".Maohao()}>
+                         
+                        </RadialGradientBrush > </{name}.Fill>";
+                            XElement rtnxmle = XElement.Parse(rtnxml);
+                            var brush = rtnxmle.Element("RadialGradientBrush");
+                            foreach (var stop in item.Elements("stop"))
+                            {
+                                var str = stop.ToString().Replace("stop-color", "Color").Replace("stop", "GradientStop");
+                                var stopx = XElement.Parse(str);
+                                if (stopx.Attribute("Color") == null)
+                                {
+                                    stopx.SetAttributeValue("Color", "Black");
+                                }
+                                brush.Add(stopx);
+                            }
+                            return rtnxmle;
+                        }
+                    }
                 }
             }
             return null;
