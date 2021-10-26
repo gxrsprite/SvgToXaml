@@ -243,10 +243,11 @@ namespace SvgToXaml
                         if (item.Name == "radialGradient")
                         {
                             var center = $"{item.Attribute("cx").Value},{item.Attribute("cy").Value}";
+                            var gradientOrigin = $"{item.Attribute("fx").Value},{item.Attribute("fy").Value}";
                             var radiusX = $"{item.Attribute("r").Value}";
 
                             string rtnxml = $@"<{name}.Fill>
-                        <RadialGradientBrush  Center={center.Maohao()} GradientOrigin={center.Maohao()} RadiusX={radiusX.Maohao() } RadiusY={radiusX.Maohao() } MappingMode={"Absolute".Maohao()}>
+                        <RadialGradientBrush  Center={center.Maohao()} GradientOrigin={gradientOrigin.Maohao()} RadiusX={radiusX.Maohao() } RadiusY={radiusX.Maohao() } MappingMode={"Absolute".Maohao()}>
                          
                         </RadialGradientBrush > </{name}.Fill>";
                             XElement rtnxmle = XElement.Parse(rtnxml);
